@@ -6,6 +6,7 @@
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
 #include "caffe/proto/caffe.pb.h"
+#include "caffe/util/data_augmenter.hpp"
 
 namespace caffe {
 
@@ -141,7 +142,7 @@ class DataTransformer {
   void Transform(const Datum& datum, Dtype* transformed_data);
   // Tranformation parameters
   TransformationParameter param_;
-
+  DataAugmenter<Dtype> aug_;
 
   shared_ptr<Caffe::RNG> rng_;
   Phase phase_;

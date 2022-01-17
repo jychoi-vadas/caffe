@@ -15,7 +15,7 @@ namespace caffe {
 template<typename Dtype>
 DataTransformer<Dtype>::DataTransformer(const TransformationParameter& param,
     Phase phase)
-    : param_(param), phase_(phase) {
+    : param_(param), phase_(phase), aug_(param) {
   // check if we want to use mean_file
   if (param_.has_mean_file()) {
     CHECK_EQ(param_.mean_value_size(), 0) <<
@@ -289,6 +289,10 @@ void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
   } else {
     CHECK_EQ(img_height, height);
     CHECK_EQ(img_width, width);
+  }
+
+  if (phase_ == TRAIN) {
+    aug_.Transform(cv_cropped_img);
   }
 
   CHECK(cv_cropped_img.data);
