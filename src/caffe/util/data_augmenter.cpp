@@ -118,9 +118,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
 }
 
 template <typename Dtype>
-void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img ,int rotation_angle_interval) {
-  double rotation_degree;
-  cv::Mat dst;
+void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, int rotation_angle_interval) {
   int interval = 360 / rotation_angle_interval;
   int apply_rotation = Rand(interval);
 
@@ -128,15 +126,18 @@ void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img ,int rotation_angle_interval
   cv::Mat resize_img = cv::Mat(dsize, CV_32S);
   cv::resize(cv_img, resize_img, dsize);
 
-  cv::Point2f pt(resize_img.cols/2., resize_img.rows/2.);    
-  rotation_degree = apply_rotation * rotation_angle_interval;
-  cv::Mat r = getRotationMatrix2D(pt, rotation_degree, 1.0);
-  warpAffine(resize_img, dst, r, cv::Size(resize_img.cols, resize_img.rows));
+  cv::Mat rotated_img = Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
+  cv::Point2f center(cv_img.cols / 2., cv_img.rows / 2.);    
 
-  cv::Rect myROI(resize_img.cols / 6, resize_img.rows / 6, cv_img.cols, cv_img.rows);
-  cv::Mat crop_after_rotate = dst(myROI);
+  double degree = apply_rotation * rotation_angle_interval;
+  
+  cv::Mat rotate_matrix = getRotationMatrix2D(center, degree, 1.0);
+  cv::warpAffine(cv_img, rotated_img, rotate_matrix, cv::Size(cv_img.cols, cv_img.rows));
 
-  crop_after_rotate.copyTo(cv_img);
+//   cv::Rect myROI(resize_img.cols / 6, resize_img.rows / 6, cv_img.cols, cv_img.rows);
+//   cv::Mat crop_after_rotate = rotated_img(myROI);
+
+  rotated_img.copyTo(cv_img);
 
   if (m_show_info) {
     LOG(INFO) << "* Degree for Rotation : " << rotation_degree;
