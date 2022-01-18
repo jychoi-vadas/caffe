@@ -451,11 +451,13 @@ message TransformationParameter {
 
   optional bool brightness = 11 [default = false];
 
-  optional int rotation = 12 [default = 0];
+  optional uint32 rotation = 12 [default = 0];
 
-  optional bool show_info = 13 [default = false];
+  optional uint32 translation = 13 [default = 0];
 
-  optional string save_dir = 15;
+  optional bool show_info = 20 [default = false];
+
+  optional string save_dir = 21;
 }
 
 // Message that stores parameters shared by loss layers

@@ -28,16 +28,18 @@ class DataAugmenter {
   
   void Rotation(cv::Mat& cv_img, const int degree);
   
+  // void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
 
  protected:
 
   TransformationParameter param_;
   shared_ptr<Caffe::RNG> rng_;
 
-  bool m_has_rotation;
   bool m_has_brightness;
   bool m_has_color;
   bool m_has_contrast;
+  bool m_has_rotation;
+  bool m_has_translation;
 
   int m_img_index;
   bool m_show_info; 

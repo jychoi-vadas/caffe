@@ -12,12 +12,13 @@ template<typename Dtype>
 DataAugmenter<Dtype>::DataAugmenter(const TransformationParameter& param)
     : param_(param) {
     InitRand();
-    m_img_index    = 0;
+    m_img_index = 0;
 
-    m_has_brightness  = param_.brightness() > 0 && Rand(2);
-    m_has_color  = param_.color() > 0 && Rand(2);
-    m_has_contrast  = param_.contrast() > 0 && Rand(2);
-    m_has_rotation  = param_.rotation() > 0 && Rand(2);
+    m_has_brightness = param_.brightness() > 0 && Rand(2);
+    m_has_color = param_.color() > 0 && Rand(2);
+    m_has_contrast = param_.contrast() > 0 && Rand(2);
+    m_has_rotation = param_.rotation() > 0 && Rand(2);
+    m_has_translation = param_.translation() > 0 && Rand(2);
 
     m_show_info = param_.show_info();
     m_save_dir  = param_.save_dir();
