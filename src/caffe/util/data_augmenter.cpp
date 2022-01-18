@@ -126,7 +126,7 @@ void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, int rotation_angle_interval
   cv::Mat resize_img = cv::Mat(dsize, CV_32S);
   cv::resize(cv_img, resize_img, dsize);
 
-  cv::Mat rotated_img = Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
+  cv::Mat rotated_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::Point2f center(cv_img.cols / 2., cv_img.rows / 2.);    
 
   double degree = apply_rotation * rotation_angle_interval;
@@ -140,7 +140,7 @@ void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, int rotation_angle_interval
   rotated_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Degree for Rotation : " << rotation_degree;
+    LOG(INFO) << "* Degree for Rotation : " << degree;
   }
 }
 
