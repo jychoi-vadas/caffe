@@ -451,7 +451,7 @@ message TransformationParameter {
 
   optional bool brightness = 11 [default = false];
 
-  optional int32 rotation_angle_interval = 12 [default = 0];
+  optional double ratation = 12 [default = 0];
 
   optional bool show_info = 13 [default = false];
 

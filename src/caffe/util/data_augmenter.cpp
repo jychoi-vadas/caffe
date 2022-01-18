@@ -17,6 +17,7 @@ DataAugmenter<Dtype>::DataAugmenter(const TransformationParameter& param)
     m_has_brightness  = param_.brightness() > 0 && Rand(2);
     m_has_color  = param_.color() > 0 && Rand(2);
     m_has_contrast  = param_.contrast() > 0 && Rand(2);
+    m_has_rotation  = param_.rotation() > 0 && Rand(2);
 
     m_show_info = param_.show_info();
     m_save_dir  = param_.save_dir();
@@ -58,8 +59,8 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Brightness(cv_img); 
   }
   
-  if (param_.rotation_angle_interval() > 0 ) { 
-    Rotation(cv_img, param_.rotation_angle_interval()); 
+  if (param_.rotation() > 0 ) { 
+    Rotation(cv_img, param_.rotation()); 
   }
 
   if (m_save_dir.length() > 2) {
@@ -118,29 +119,21 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
 }
 
 template <typename Dtype>
-void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, int rotation_angle_interval) {
-  int interval = 360 / rotation_angle_interval;
-  int apply_rotation = Rand(interval);
-
-  cv::Size dsize = cv::Size(cv_img.cols * 1.5, cv_img.rows * 1.5);
-  cv::Mat resize_img = cv::Mat(dsize, CV_32S);
-  cv::resize(cv_img, resize_img, dsize);
+void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, double degree) {
+  int sign = (Rand(2) % 2 ? 1.0 : -1.0);
 
   cv::Mat rotated_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::Point2f center(cv_img.cols / 2., cv_img.rows / 2.);    
 
-  double degree = apply_rotation * rotation_angle_interval;
+  double sign_degree = sign * degree;
   
-  cv::Mat rotate_matrix = getRotationMatrix2D(center, degree, 1.0);
+  cv::Mat rotate_matrix = getRotationMatrix2D(center, sign_degree, 1.0);
   cv::warpAffine(cv_img, rotated_img, rotate_matrix, cv::Size(cv_img.cols, cv_img.rows));
-
-//   cv::Rect myROI(resize_img.cols / 6, resize_img.rows / 6, cv_img.cols, cv_img.rows);
-//   cv::Mat crop_after_rotate = rotated_img(myROI);
 
   rotated_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Degree for Rotation : " << degree;
+    LOG(INFO) << "* Degree for Rotation : " << sign_degree;
   }
 }
 
