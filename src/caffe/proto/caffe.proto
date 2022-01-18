@@ -453,9 +453,9 @@ message TransformationParameter {
 
   optional int32 rotation_angle_interval = 12 [default = 0];
 
-  optional bool show_augment_info = 13 [default = false];
+  optional bool show_info = 13 [default = false];
 
-  optional string dir_to_save_augmented_imgs = 15;
+  optional string save_dir = 15;
 }
 
 // Message that stores parameters shared by loss layers

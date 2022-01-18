@@ -34,9 +34,13 @@ class DataAugmenter {
   TransformationParameter param_;
   shared_ptr<Caffe::RNG> rng_;
 
-  bool m_display_info; 
-  string m_imwrite_dir;
+  bool m_has_brightness;
+  bool m_has_color;
+  bool m_has_contrast;
+
   int m_img_index;
+  bool m_show_info; 
+  string m_save_dir;
   };
 }
 #endif  // CAFFE_DATA_AUGMENT_HPP_
