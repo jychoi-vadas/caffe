@@ -34,6 +34,7 @@ class DataAugmenter {
   TransformationParameter param_;
   shared_ptr<Caffe::RNG> rng_;
 
+  bool m_has_rotation;
   bool m_has_brightness;
   bool m_has_color;
   bool m_has_contrast;
