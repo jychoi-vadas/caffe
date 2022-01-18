@@ -26,7 +26,7 @@ class DataAugmenter {
   
   void Brightness(cv::Mat& cv_img);
   
-  void Rotation(cv::Mat& cv_img , int);
+  void Rotation(cv::Mat& cv_img, const int degree);
   
 
  protected:

@@ -59,7 +59,7 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Brightness(cv_img); 
   }
   
-  if (param_.rotation() > 0 ) { 
+  if (m_has_rotation) { 
     Rotation(cv_img, param_.rotation()); 
   }
 
@@ -119,14 +119,13 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
 }
 
 template <typename Dtype>
-void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, double degree) {
-  int sign = (Rand(2) % 2 ? 1.0 : -1.0);
+void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, const int degree) {
+  double sign = (Rand(2) % 2 ? 1.0 : -1.0);
+  double sign_degree = sign * (double)degree;
 
   cv::Mat rotated_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::Point2f center(cv_img.cols / 2., cv_img.rows / 2.);    
 
-  double sign_degree = sign * degree;
-  
   cv::Mat rotate_matrix = getRotationMatrix2D(center, sign_degree, 1.0);
   cv::warpAffine(cv_img, rotated_img, rotate_matrix, cv::Size(cv_img.cols, cv_img.rows));
 
@@ -136,6 +135,27 @@ void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, double degree) {
     LOG(INFO) << "* Degree for Rotation : " << sign_degree;
   }
 }
+
+// template <typename Dtype>
+// void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
+//   float sign_x = (Rand(2) % 2 ? 1.f : -1.f);
+//   float sign_y = (Rand(2) % 2 ? 1.f : -1.f);
+  
+//   float tx = sign_x * float(Rand(pixel));
+//   float ty = sign_y * float(Rand(pixel));
+//   float translation_value[] = { 1.0, 0.0, tx, 
+//                                 0.0, 1.0, ty };
+//   Mat translation_matrix = Mat(2, 3, CV_32F, translation_value);
+
+//   Mat translated_image;
+//   cv::warpAffine(cv_img, translated_image, translation_matrix, cv_img.size());
+
+//   translated_image.copyTo(cv_img);
+
+//   if (m_show_info) {
+//     LOG(INFO) << "* Pixel for Translation : " << tx << ", " << ty;
+//   }
+// }
 
   INSTANTIATE_CLASS(DataAugmenter);
 } //namespace caffe
