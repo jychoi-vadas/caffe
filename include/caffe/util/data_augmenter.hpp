@@ -28,8 +28,8 @@ class DataAugmenter {
   
   void Rotation(cv::Mat& cv_img, const int degree);
   
-  void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel);
-  void DataAugmenter<Dtype>::Pad(cv::Mat& cv_img, const int pixel);
+  void Translate(cv::Mat& cv_img, const int pixel);
+  void Pad(cv::Mat& cv_img, const int pixel);
 
  protected:
 
