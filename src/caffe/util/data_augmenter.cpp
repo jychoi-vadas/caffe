@@ -119,8 +119,8 @@ void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
   cv::Mat channels_img[3];
   cv::split(cv_img, channels_img);
   cv::addWeighted(channels_img[rand_ch], 0.25 + rand_factor, channels_img[rand_ch], 0.25 + rand_factor, 0.0, channels_img[rand_ch]);
-  cv::merge(channels_img, cv_img);
-  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv:Scalar(255, 255, 255), cv_img);
+  cv::merge(channels_img, 3, cv_img);
+  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
     LOG(INFO) << "* Alpha for Color: " << rand_factor;
@@ -133,7 +133,7 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
 
   cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::addWeighted(zero_img, 0.0, cv_img, rand_factor, 0.0, cv_img);
-  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv:Scalar(255, 255, 255), cv_img);
+  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
     LOG(INFO) << "* Alpha for Brightness : " << rand_factor;
@@ -151,7 +151,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   cvtColor(gray_img, mean_img, CV_GRAY2BGR);
 
   cv::addWeighted(mean_img, rand_factor, cv_img, 1.0 - rand_factor, 0.0, cv_img);
-  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv:Scalar(255, 255, 255), cv_img);
+  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
     LOG(INFO) << "* Alpha for Contrast: " << rand_factor;
