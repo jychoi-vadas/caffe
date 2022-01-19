@@ -65,6 +65,14 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Rotation(cv_img, param_.rotation()); 
   }
 
+  if (m_has_translation) { 
+    Translate(cv_img, param_.translation()); 
+  }
+
+  if (m_has_padding) { 
+    Pad(cv_img, param_.padding()); 
+  }
+
   if (m_save_dir.length() > 2) {
     char im_path[256];
     sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
