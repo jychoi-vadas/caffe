@@ -15,8 +15,8 @@ DataAugmenter<Dtype>::DataAugmenter(const TransformationParameter& param)
     m_img_index = 0;
 
     m_has_blur = param_.blur() > 0 && Rand(2);
-    m_has_brightness = param_.brightness() > 0 && Rand(2);
     m_has_color = param_.color() > 0 && Rand(2);
+    m_has_brightness = param_.brightness() > 0 && Rand(2);
     m_has_contrast = param_.contrast() > 0 && Rand(2);
     m_has_hue = param_.hue() > 0 && Rand(2);
     m_has_saturation = param_.saturation() > 0 && Rand(2);
@@ -68,13 +68,13 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Contrast(cv_img);
   }
 
-  if (m_has_hue) { 
-    Hue(cv_img);
-  }
+//   if (m_has_hue) { 
+//     Hue(cv_img, param_.hue());
+//   }
 
-  if (m_has_saturation) { 
-    Saturate(cv_img);
-  }
+//   if (m_has_saturation) { 
+//     Saturate(cv_img, param_.saturation());
+//   }
   
   if (m_has_rotation) { 
     Rotate(cv_img, param_.rotation()); 
@@ -98,91 +98,81 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
-  int random_size = 3 + Rand(4);
-  int kernel_size = (random_size % 2 ? random_size : random_size + 1);
+  int rand_size = 3 + Rand(4);
+  int kernel_size = (rand_size % 2 ? rand_size + 1 : rand_size);
   
-  cv::Mat blur_img;
-  cv::GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
-  blur_img.copyTo(cv_img);
+//   cv::Mat blur_img;
+//   cv::GaussianBlur(cv_img, blur_img, cv::Size(kernel_size, kernel_size), 0);
+//   blur_img.copyTo(cv_img);
+  cv::GaussianBlur(cv_img, cv_img, cv::Size(kernel_size, kernel_size), 0);
 
   if (m_show_info) {
-    LOG(INFO) << "* Apply Blur: " << random_size << " x " << random_size;
+    LOG(INFO) << "* Apply Blur: " << rand_size << " x " << rand_size;
   }
 }
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
-  //alpha 0.8 - 1.2
-  double alpha = (Rand(5) + 8) / 10.0;
-  cv::Mat gray_image = cv_img.clone();
-  cv::Mat degenerate;
+  int rand_ch = Rand(3);
+  double rand_factor = ((double)(Rand(5))) / 10.0;
 
-  cv::cvtColor(cv_img, gray_image, CV_BGR2GRAY);
-  cv::cvtColor(gray_image, degenerate, CV_GRAY2BGR);
-
-  cv::addWeighted(degenerate, 1-alpha, cv_img, alpha, 0.0, cv_img);
+  cv::Mat channels_img[3];
+  cv::split(cv_img, channels_img);
+  cv::addWeighted(channels_img[rand_ch], 0.25 + rand_factor, channels_img[rand_ch], 0.25 + rand_factor, 0.0, channels_img[rand_ch]);
+  cv::merge(channels_img, cv_img);
+  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv:Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Apply Color: " << alpha;
+    LOG(INFO) << "* Alpha for Color: " << rand_factor;
   }
 }
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
+  double rand_factor = ((double)(10 + Rand(5))) / 10.0;
 
-  double alpha = (Rand(5) + 8) / 10.0;
-  cv::Mat zero_img = cv_img.clone();
-  zero_img.setTo(cv::Scalar(0, 0, 0));
-  cv::addWeighted(zero_img, 1-alpha, cv_img, alpha, 0.0, cv_img);
+  cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
+  cv::addWeighted(zero_img, 0.0, cv_img, rand_factor, 0.0, cv_img);
+  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv:Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Alpha for Brightness : " << alpha;
+    LOG(INFO) << "* Alpha for Brightness : " << rand_factor;
   }
 }
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
+  double rand_factor = ((double)(Rand(5))) / 10.0;
 
-  double alpha = (Rand(5) + 8) / 10.0;
-  cv::Mat gray_image;
-  cv::Mat degenerate;
-  cv::cvtColor(cv_img, gray_image, CV_BGR2GRAY);
-  gray_image.setTo(cv::mean(gray_image));
-  cvtColor(gray_image, degenerate, CV_GRAY2BGR);
-  cv::addWeighted(degenerate, 1-alpha, cv_img, alpha, 0.0, cv_img);
+  cv::Mat gray_img;
+  cv::cvtColor(cv_img, gray_img, CV_BGR2GRAY);
+
+  cv::Mat mean_img;
+  cvtColor(gray_img, mean_img, CV_GRAY2BGR);
+
+  cv::addWeighted(mean_img, rand_factor, cv_img, 1.0 - rand_factor, 0.0, cv_img);
+  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv:Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Alpha for Contrast: " << alpha;
+    LOG(INFO) << "* Alpha for Contrast: " << rand_factor;
   }
 }
 
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Hue(cv::Mat& cv_img, const float factor) {
-  int random_size = 3 + Rand(4);
-  int kernel_size = (random_size % 2 ? random_size : random_size + 1);
-  
-  cv::Mat blur_img;
-  cv::GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
-  blur_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Apply Blur: " << random_size << " x " << random_size;
+    LOG(INFO) << "* Apply Hue: " << factor;
   }
 }
 
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Saturate(cv::Mat& cv_img, const float factor) {
-  int random_size = 3 + Rand(4);
-  int kernel_size = (random_size % 2 ? random_size : random_size + 1);
-  
-  cv::Mat blur_img;
-  cv::GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
-  blur_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Apply Blur: " << random_size << " x " << random_size;
+    LOG(INFO) << "* Apply Saturation: " << factor;
   }
 }
 
@@ -237,7 +227,7 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
   cv::Mat resized_img;
   cv::resize(cv_img, resized_img, cv::Size(resize_w, resize_h));
 
-  cv::Mat zoomed_img = cv::zeros(origin_w, origin_h, cv_img.type());
+  cv::Mat zoomed_img = cv::Mat::zeros(origin_w, origin_h, cv_img.type());
   if (sign > 0) {   // zoom in
     cv::Rect roi((int)((resize_w - origin_w) / 2), (int)((resize_h - origin_h) / 2), origin_w, origin_h);
     zoomed_img = resized_img(roi);
