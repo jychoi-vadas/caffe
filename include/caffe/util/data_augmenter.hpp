@@ -24,11 +24,15 @@ class DataAugmenter {
 
   void Color(cv::Mat& cv_img);
   
-  void Contrast(cv::Mat& cv_img);
-  
   void Brightness(cv::Mat& cv_img);
+
+  void Contrast(cv::Mat& cv_img);
+
+  void Hue(cv::Mat& cv_img, const float factor);
+
+  void Saturate(cv::Mat& cv_img, const float factor);
   
-  void Rotation(cv::Mat& cv_img, const int degree);
+  void Rotate(cv::Mat& cv_img, const int degree);
   
   void Translate(cv::Mat& cv_img, const int pixel);
   
@@ -40,9 +44,11 @@ class DataAugmenter {
   shared_ptr<Caffe::RNG> rng_;
 
   bool m_has_blur;
-  bool m_has_brightness;
   bool m_has_color;
+  bool m_has_brightness;
   bool m_has_contrast;
+  bool m_has_hue;
+  bool m_has_saturation;
   bool m_has_rotation;
   bool m_has_translation;
   bool m_has_zoom;

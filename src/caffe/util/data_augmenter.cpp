@@ -18,6 +18,8 @@ DataAugmenter<Dtype>::DataAugmenter(const TransformationParameter& param)
     m_has_brightness = param_.brightness() > 0 && Rand(2);
     m_has_color = param_.color() > 0 && Rand(2);
     m_has_contrast = param_.contrast() > 0 && Rand(2);
+    m_has_hue = param_.hue() > 0 && Rand(2);
+    m_has_saturation = param_.saturation() > 0 && Rand(2);
     m_has_rotation = param_.rotation() > 0 && Rand(2);
     m_has_translation = param_.translation() > 0 && Rand(2);
     m_has_zoom = param_.zoom() > 0 && Rand(2);
@@ -58,16 +60,24 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Color(cv_img);
   }
   
-  if (m_has_contrast) { 
-    Contrast(cv_img);
-  }
-  
   if (m_has_brightness){ 
     Brightness(cv_img); 
   }
+
+  if (m_has_contrast) { 
+    Contrast(cv_img);
+  }
+
+  if (m_has_hue) { 
+    Hue(cv_img);
+  }
+
+  if (m_has_saturation) { 
+    Saturate(cv_img);
+  }
   
   if (m_has_rotation) { 
-    Rotation(cv_img, param_.rotation()); 
+    Rotate(cv_img, param_.rotation()); 
   }
 
   if (m_has_translation) { 
@@ -91,8 +101,8 @@ void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
   int random_size = 3 + Rand(4);
   int kernel_size = (random_size % 2 ? random_size : random_size + 1);
   
-  Mat blur_img;
-  GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
+  cv::Mat blur_img;
+  cv::GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
   blur_img.copyTo(cv_img);
 
   if (m_show_info) {
@@ -146,8 +156,38 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   }
 }
 
+
 template <typename Dtype>
-void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, const int degree) {
+void DataAugmenter<Dtype>::Hue(cv::Mat& cv_img, const float factor) {
+  int random_size = 3 + Rand(4);
+  int kernel_size = (random_size % 2 ? random_size : random_size + 1);
+  
+  cv::Mat blur_img;
+  cv::GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
+  blur_img.copyTo(cv_img);
+
+  if (m_show_info) {
+    LOG(INFO) << "* Apply Blur: " << random_size << " x " << random_size;
+  }
+}
+
+
+template <typename Dtype>
+void DataAugmenter<Dtype>::Saturate(cv::Mat& cv_img, const float factor) {
+  int random_size = 3 + Rand(4);
+  int kernel_size = (random_size % 2 ? random_size : random_size + 1);
+  
+  cv::Mat blur_img;
+  cv::GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
+  blur_img.copyTo(cv_img);
+
+  if (m_show_info) {
+    LOG(INFO) << "* Apply Blur: " << random_size << " x " << random_size;
+  }
+}
+
+template <typename Dtype>
+void DataAugmenter<Dtype>::Rotate(cv::Mat& cv_img, const int degree) {
   double sign = (Rand(2) % 2 ? 1.0 : -1.0);
   double sign_degree = sign * (double)degree;
 
@@ -192,8 +232,8 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
   int origin_w = cv_img.cols;
   int origin_h = cv_img.rows;
 
-  int resize_w = (int)((float)origin_w * (1.f + sign * pixel))
-  int resize_h = (int)((float)origin_h * (1.f + sign * pixel))
+  int resize_w = (int)((float)origin_w * (1.f + sign * pixel));
+  int resize_h = (int)((float)origin_h * (1.f + sign * pixel));
   cv::Mat resized_img;
   cv::resize(cv_img, resized_img, cv::Size(resize_w, resize_h));
 
@@ -210,7 +250,7 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
   zoomed_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Pixel for Zoom : " << top << ", " << bottom << ", " << left << ", " << right;
+    LOG(INFO) << "* Pixel for Zoom : ";
   }
 }
 
