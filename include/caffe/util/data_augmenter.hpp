@@ -49,9 +49,9 @@ class DataAugmenter {
   bool m_has_contrast;
   bool m_has_hue;
   bool m_has_saturation;
-  bool m_has_rotation;
-  bool m_has_translation;
   bool m_has_zoom;
+  bool m_has_translation;
+  bool m_has_rotation;
 
   int m_img_index;
   bool m_show_info; 

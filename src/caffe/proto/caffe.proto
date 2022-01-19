@@ -447,7 +447,6 @@ message TransformationParameter {
 
   optional bool blur = 8 [default = false];
 
-
   optional bool color = 9 [default = false];
 
   optional bool brightness = 10 [default = false];
@@ -458,11 +457,11 @@ message TransformationParameter {
 
   optional float saturation = 13 [default = 0];
 
-  optional uint32 rotation = 14 [default = 0];
+  optional uint32 zoom = 14 [default = 0];
 
   optional uint32 translation = 15 [default = 0];
 
-  optional uint32 zoom = 16 [default = 0];
+  optional uint32 rotation = 16 [default = 0];
 
   optional bool show_info = 20 [default = false];
 

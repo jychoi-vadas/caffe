@@ -76,16 +76,16 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
 //     Saturate(cv_img, param_.saturation());
 //   }
   
-  if (m_has_rotation) { 
-    Rotate(cv_img, param_.rotation()); 
+  if (m_has_zoom) { 
+    Zoom(cv_img, param_.zoom()); 
   }
-
+  
   if (m_has_translation) { 
     Translate(cv_img, param_.translation()); 
   }
 
-  if (m_has_zoom) { 
-    Zoom(cv_img, param_.zoom()); 
+  if (m_has_rotation) { 
+    Rotate(cv_img, param_.rotation()); 
   }
 
   if (m_save_dir.length() > 2) {
@@ -99,7 +99,7 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
 template <typename Dtype>
 void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
   int rand_size = 3 + Rand(4);
-  int kernel_size = (rand_size % 2 ? rand_size + 1 : rand_size);
+  int kernel_size = (rand_size % 2 ? rand_size : rand_size + 1);
   
 //   cv::Mat blur_img;
 //   cv::GaussianBlur(cv_img, blur_img, cv::Size(kernel_size, kernel_size), 0);
@@ -107,7 +107,7 @@ void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
   cv::GaussianBlur(cv_img, cv_img, cv::Size(kernel_size, kernel_size), 0);
 
   if (m_show_info) {
-    LOG(INFO) << "* Apply Blur: " << rand_size << " x " << rand_size;
+    LOG(INFO) << "* Apply Blur: " << kernel_size << " x " << kernel_size;
   }
 }
 
@@ -129,7 +129,7 @@ void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
-  double rand_factor = ((double)(10 + Rand(5))) / 10.0;
+  double rand_factor = ((double)(100 + Rand(20))) / 100.0;
 
   cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::addWeighted(zero_img, 0.0, cv_img, rand_factor, 0.0, cv_img);
@@ -142,7 +142,7 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
-  double rand_factor = ((double)(Rand(5))) / 10.0;
+  double rand_factor = ((double)(Rand(20))) / 100.0;
 
   cv::Mat gray_img;
   cv::cvtColor(cv_img, gray_img, CV_BGR2GRAY);
@@ -150,7 +150,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   cv::Mat mean_img;
   cvtColor(gray_img, mean_img, CV_GRAY2BGR);
 
-  cv::addWeighted(mean_img, rand_factor, cv_img, 1.0 - rand_factor, 0.0, cv_img);
+  cv::addWeighted(mean_img, 0.2 - rand_factor, cv_img, 1.0 + rand_factor, 0.0, cv_img);
   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
@@ -222,9 +222,9 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
   int origin_w = cv_img.cols;
   int origin_h = cv_img.rows;
 
-  int resize_w = (int)((float)origin_w * (1.f + sign * pixel));
-  int resize_h = (int)((float)origin_h * (1.f + sign * pixel));
   cv::Mat resized_img;
+  int resize_w = origin_w + sign * pixel;
+  int resize_h = origin_h + sign * pixel;
   cv::resize(cv_img, resized_img, cv::Size(resize_w, resize_h));
 
   cv::Mat zoomed_img = cv::Mat::zeros(origin_w, origin_h, cv_img.type());
