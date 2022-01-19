@@ -147,9 +147,9 @@ void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
   float ty = sign_y * float(Rand(pixel));
   float translation_value[] = { 1.0, 0.0, tx, 
                                 0.0, 1.0, ty };
-  Mat translation_matrix = Mat(2, 3, CV_32F, translation_value);
+  cv::Mat translation_matrix = cv::Mat(2, 3, CV_32F, translation_value);
 
-  Mat translated_img;
+  cv::Mat translated_img;
   cv::warpAffine(cv_img, translated_img, translation_matrix, cv_img.size());
 
   translated_img.copyTo(cv_img);
@@ -165,9 +165,9 @@ void DataAugmenter<Dtype>::Pad(cv::Mat& cv_img, const int pixel) {
   int bottom = Rand(pixel);
   int left = Rand(pixel);
   int right = Rand(pixel);
-  Scalar value(Rand(255), Rand(255), Rand(255));
+  cv::Scalar value(Rand(255), Rand(255), Rand(255));
 
-  Mat padded_img;
+  cv::Mat padded_img;
   cv::copyMakeBorder(cv_img, padded_img, top, bottom, left, right, cv::BORDER_CONSTANT, value);
 
   padded_img.copyTo(cv_img);
