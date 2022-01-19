@@ -28,7 +28,8 @@ class DataAugmenter {
   
   void Rotation(cv::Mat& cv_img, const int degree);
   
-  // void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
+  void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel);
+  void DataAugmenter<Dtype>::Pad(cv::Mat& cv_img, const int pixel);
 
  protected:
 
@@ -40,6 +41,7 @@ class DataAugmenter {
   bool m_has_contrast;
   bool m_has_rotation;
   bool m_has_translation;
+  bool m_has_padding;
 
   int m_img_index;
   bool m_show_info; 

@@ -19,6 +19,7 @@ DataAugmenter<Dtype>::DataAugmenter(const TransformationParameter& param)
     m_has_contrast = param_.contrast() > 0 && Rand(2);
     m_has_rotation = param_.rotation() > 0 && Rand(2);
     m_has_translation = param_.translation() > 0 && Rand(2);
+    m_has_padding = param_.padding() > 0 && Rand(2);
 
     m_show_info = param_.show_info();
     m_save_dir  = param_.save_dir();
@@ -47,7 +48,7 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     sprintf(im_path, "%s/%d_ori.jpg", m_save_dir.c_str(), ++m_img_index);
     cv::imwrite(im_path, cv_img);
   } 
-  LOG(INFO) << m_has_color << " " << m_has_contrast << " " << m_has_brightness;
+
   if (m_has_color) { 
     Color(cv_img);
   }
@@ -137,26 +138,44 @@ void DataAugmenter<Dtype>::Rotation(cv::Mat& cv_img, const int degree) {
   }
 }
 
-// template <typename Dtype>
-// void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
-//   float sign_x = (Rand(2) % 2 ? 1.f : -1.f);
-//   float sign_y = (Rand(2) % 2 ? 1.f : -1.f);
+template <typename Dtype>
+void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
+  float sign_x = (Rand(2) % 2 ? 1.f : -1.f);
+  float sign_y = (Rand(2) % 2 ? 1.f : -1.f);
   
-//   float tx = sign_x * float(Rand(pixel));
-//   float ty = sign_y * float(Rand(pixel));
-//   float translation_value[] = { 1.0, 0.0, tx, 
-//                                 0.0, 1.0, ty };
-//   Mat translation_matrix = Mat(2, 3, CV_32F, translation_value);
+  float tx = sign_x * float(Rand(pixel));
+  float ty = sign_y * float(Rand(pixel));
+  float translation_value[] = { 1.0, 0.0, tx, 
+                                0.0, 1.0, ty };
+  Mat translation_matrix = Mat(2, 3, CV_32F, translation_value);
 
-//   Mat translated_image;
-//   cv::warpAffine(cv_img, translated_image, translation_matrix, cv_img.size());
+  Mat translated_img;
+  cv::warpAffine(cv_img, translated_img, translation_matrix, cv_img.size());
 
-//   translated_image.copyTo(cv_img);
+  translated_img.copyTo(cv_img);
 
-//   if (m_show_info) {
-//     LOG(INFO) << "* Pixel for Translation : " << tx << ", " << ty;
-//   }
-// }
+  if (m_show_info) {
+    LOG(INFO) << "* Pixel for Translation : " << tx << ", " << ty;
+  }
+}
+
+template <typename Dtype>
+void DataAugmenter<Dtype>::Pad(cv::Mat& cv_img, const int pixel) {
+  int top = Rand(pixel);
+  int bottom = Rand(pixel);
+  int left = Rand(pixel);
+  int right = Rand(pixel);
+  Scalar value(Rand(255), Rand(255), Rand(255));
+
+  Mat padded_img;
+  cv::copyMakeBorder(cv_img, padded_img, top, bottom, left, right, cv::BORDER_CONSTANT, value);
+
+  padded_img.copyTo(cv_img);
+
+  if (m_show_info) {
+    LOG(INFO) << "* Pixel for Translation : " << top << ", " << bottom << ", " << left << ", " << right;
+  }
+}
 
   INSTANTIATE_CLASS(DataAugmenter);
 } //namespace caffe

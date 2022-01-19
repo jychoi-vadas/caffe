@@ -455,6 +455,8 @@ message TransformationParameter {
 
   optional uint32 translation = 13 [default = 0];
 
+  optional uint32 padding = 14 [default = 0];
+
   optional bool show_info = 20 [default = false];
 
   optional string save_dir = 21;
