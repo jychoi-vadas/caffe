@@ -14,12 +14,13 @@ DataAugmenter<Dtype>::DataAugmenter(const TransformationParameter& param)
     InitRand();
     m_img_index = 0;
 
+    m_has_blur = param_.blur() > 0 && Rand(2);
     m_has_brightness = param_.brightness() > 0 && Rand(2);
     m_has_color = param_.color() > 0 && Rand(2);
     m_has_contrast = param_.contrast() > 0 && Rand(2);
     m_has_rotation = param_.rotation() > 0 && Rand(2);
     m_has_translation = param_.translation() > 0 && Rand(2);
-    m_has_padding = param_.padding() > 0 && Rand(2);
+    m_has_zoom = param_.zoom() > 0 && Rand(2);
 
     m_show_info = param_.show_info();
     m_save_dir  = param_.save_dir();
@@ -49,6 +50,10 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     cv::imwrite(im_path, cv_img);
   } 
 
+  if (m_has_blur) { 
+    Blur(cv_img);
+  }
+
   if (m_has_color) { 
     Color(cv_img);
   }
@@ -69,8 +74,8 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Translate(cv_img, param_.translation()); 
   }
 
-  if (m_has_padding) { 
-    Pad(cv_img, param_.padding()); 
+  if (m_has_zoom) { 
+    Zoom(cv_img, param_.zoom()); 
   }
 
   if (m_save_dir.length() > 2) {
@@ -82,8 +87,21 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
 
 
 template <typename Dtype>
-void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
+void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
+  int random_size = 3 + Rand(4);
+  int kernel_size = (random_size % 2 ? random_size : random_size + 1);
+  
+  Mat blur_img;
+  GaussianBlur(cv_img, blur_img, Size(7, 7), 0);
+  blur_img.copyTo(cv_img);
 
+  if (m_show_info) {
+    LOG(INFO) << "* Apply Blur: " << random_size << " x " << random_size;
+  }
+}
+
+template <typename Dtype>
+void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
   //alpha 0.8 - 1.2
   double alpha = (Rand(5) + 8) / 10.0;
   cv::Mat gray_image = cv_img.clone();
@@ -168,20 +186,31 @@ void DataAugmenter<Dtype>::Translate(cv::Mat& cv_img, const int pixel) {
 }
 
 template <typename Dtype>
-void DataAugmenter<Dtype>::Pad(cv::Mat& cv_img, const int pixel) {
-  int top = Rand(pixel);
-  int bottom = Rand(pixel);
-  int left = Rand(pixel);
-  int right = Rand(pixel);
-  cv::Scalar value(Rand(255), Rand(255), Rand(255));
+void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
+  float sign = (Rand(2) % 2 ? 1.f : -1.f);
 
-  cv::Mat padded_img;
-  cv::copyMakeBorder(cv_img, padded_img, top, bottom, left, right, cv::BORDER_CONSTANT, value);
+  int origin_w = cv_img.cols;
+  int origin_h = cv_img.rows;
 
-  padded_img.copyTo(cv_img);
+  int resize_w = (int)((float)origin_w * (1.f + sign * pixel))
+  int resize_h = (int)((float)origin_h * (1.f + sign * pixel))
+  cv::Mat resized_img;
+  cv::resize(cv_img, resized_img, cv::Size(resize_w, resize_h));
+
+  cv::Mat zoomed_img = cv::zeros(origin_w, origin_h, cv_img.type());
+  if (sign > 0) {   // zoom in
+    cv::Rect roi((int)((resize_w - origin_w) / 2), (int)((resize_h - origin_h) / 2), origin_w, origin_h);
+    zoomed_img = resized_img(roi);
+  } else {          // zoom out
+    cv::Mat roi(zoomed_img, cv::Rect((int)((origin_w - resize_w) / 2), (int)((origin_h - resize_h) / 2), resize_w, resize_h));
+    resized_img.copyTo(roi);
+    zoomed_img.copyTo(cv_img);
+  }
+
+  zoomed_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Pixel for Translation : " << top << ", " << bottom << ", " << left << ", " << right;
+    LOG(INFO) << "* Pixel for Zoom : " << top << ", " << bottom << ", " << left << ", " << right;
   }
 }
 

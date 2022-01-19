@@ -20,6 +20,8 @@ class DataAugmenter {
   
   void Transform(cv::Mat& cv_img);
   
+  void Blur(cv::Mat& cv_img);
+
   void Color(cv::Mat& cv_img);
   
   void Contrast(cv::Mat& cv_img);
@@ -29,19 +31,21 @@ class DataAugmenter {
   void Rotation(cv::Mat& cv_img, const int degree);
   
   void Translate(cv::Mat& cv_img, const int pixel);
-  void Pad(cv::Mat& cv_img, const int pixel);
+  
+  void Zoom(cv::Mat& cv_img, const int pixel);
 
  protected:
 
   TransformationParameter param_;
   shared_ptr<Caffe::RNG> rng_;
 
+  bool m_has_blur;
   bool m_has_brightness;
   bool m_has_color;
   bool m_has_contrast;
   bool m_has_rotation;
   bool m_has_translation;
-  bool m_has_padding;
+  bool m_has_zoom;
 
   int m_img_index;
   bool m_show_info; 
