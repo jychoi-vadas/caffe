@@ -88,11 +88,11 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Rotate(cv_img, param_.rotation()); 
   }
 
-//   if (m_save_dir.length() > 2) {
-//     char im_path[256];
-//     sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
-//     cv::imwrite(im_path, cv_img);
-//   }
+  if (m_save_dir.length() > 2) {
+    char im_path[256];
+    sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
+    cv::imwrite(im_path, cv_img);
+  }
 }
 
 
