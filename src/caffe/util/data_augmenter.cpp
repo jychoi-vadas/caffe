@@ -126,7 +126,7 @@ void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
-  double rand_factor = ((double)(100.0 + Rand(20))) / 100.0;
+  double rand_factor = ((double)(50.0 + Rand(100))) / 100.0;
 
   cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::addWeighted(cv_img, rand_factor, zero_img, 1.0 - rand_factor, 0.0, cv_img);
@@ -136,7 +136,7 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
     cv::imwrite(im_path, cv_img);
   }
 
-  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
+  cv::inRange(cv_img, cv::Scalar(255, 255, 255), cv::Scalar(0, 0, 0), cv_img);
   if (m_save_dir.length() > 2) {
     char im_path[256];
     sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
@@ -151,7 +151,8 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
-  double rand_factor = ((double)(Rand(20))) / 100.0;
+  double rand_factor = ((double)(50.0 + Rand(100))) / 100.0;
+  double rand_factor = ((double)(Rand(50))) / 100.0;
 
   cv::Mat gray_img;
   cv::cvtColor(cv_img, gray_img, CV_BGR2GRAY);
@@ -160,7 +161,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   cvtColor(gray_img, mean_img, CV_GRAY2BGR);
 
   cv::addWeighted(cv_img, rand_factor, mean_img, 1.0 - rand_factor, 0.0, cv_img);
-  cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
+//   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
     LOG(INFO) << "* Alpha for Contrast: " << rand_factor;
