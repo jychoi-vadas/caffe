@@ -163,7 +163,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
 //   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Alpha for Contrast: " << rand_factor << " " << cv_img.at<Vec3b>(0, 0)[0] << " " << cv_img.at<Vec3b>(100, 100)[0];
+    LOG(INFO) << "* Alpha for Contrast: " << rand_factor << " " << cv_img.at<cv::Vec3b>(0, 0)[0] << " " << cv_img.at<cv::Vec3b>(100, 100)[0];
   }
 }
 
