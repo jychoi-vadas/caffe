@@ -101,9 +101,6 @@ void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
   int rand_size = 3 + Rand(4);
   int kernel_size = (rand_size % 2 ? rand_size : rand_size + 1);
   
-//   cv::Mat blur_img;
-//   cv::GaussianBlur(cv_img, blur_img, cv::Size(kernel_size, kernel_size), 0);
-//   blur_img.copyTo(cv_img);
   cv::GaussianBlur(cv_img, cv_img, cv::Size(kernel_size, kernel_size), 0);
 
   if (m_show_info) {
@@ -114,11 +111,11 @@ void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
 template <typename Dtype>
 void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
   int rand_ch = Rand(3);
-  double rand_factor = ((double)(Rand(5))) / 10.0;
+  double rand_factor = ((double)(Rand(20))) / 100.0;
 
   cv::Mat channels_img[3];
   cv::split(cv_img, channels_img);
-  cv::addWeighted(channels_img[rand_ch], 0.25 + rand_factor, channels_img[rand_ch], 0.25 + rand_factor, 0.0, channels_img[rand_ch]);
+  channels_img[rand_ch] = channels_img[rand_ch] * (1.0 + rand_factor)
   cv::merge(channels_img, 3, cv_img);
   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
@@ -129,10 +126,10 @@ void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
-  double rand_factor = ((double)(100 + Rand(20))) / 100.0;
+  double rand_factor = ((double)(Rand(20))) / 100.0;
 
   cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
-  cv::addWeighted(zero_img, 0.0, cv_img, rand_factor, 0.0, cv_img);
+  cv::addWeighted(cv_img, rand_factor, zero_img, 1.0 - rand_factor, 0.0, cv_img);
   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
@@ -150,7 +147,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   cv::Mat mean_img;
   cvtColor(gray_img, mean_img, CV_GRAY2BGR);
 
-  cv::addWeighted(mean_img, 0.2 - rand_factor, cv_img, 1.0 + rand_factor, 0.0, cv_img);
+  cv::addWeighted(cv_img, rand_factor, mean_img, 1.0 - rand_factor, 0.0, cv_img);
   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
   if (m_show_info) {
@@ -223,8 +220,8 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
   int origin_h = cv_img.rows;
 
   cv::Mat resized_img;
-  int resize_w = origin_w + sign * pixel;
-  int resize_h = origin_h + sign * pixel;
+  int resize_w = origin_w + sign * Rand(pixel);
+  int resize_h = origin_h + sign * Rand(pixel);
   cv::resize(cv_img, resized_img, cv::Size(resize_w, resize_h));
 
   cv::Mat zoomed_img = cv::Mat::zeros(origin_w, origin_h, cv_img.type());
@@ -240,7 +237,7 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
   zoomed_img.copyTo(cv_img);
 
   if (m_show_info) {
-    LOG(INFO) << "* Pixel for Zoom : ";
+    LOG(INFO) << "* Pixel for Zoom : " << pixel;
   }
 }
 
