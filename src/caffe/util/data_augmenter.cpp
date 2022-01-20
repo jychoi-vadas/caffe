@@ -115,7 +115,7 @@ void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
 
   cv::Mat channels_img[3];
   cv::split(cv_img, channels_img);
-  channels_img[rand_ch] = channels_img[rand_ch] * (1.0 + rand_factor)
+  channels_img[rand_ch] = channels_img[rand_ch] * (1.0 + rand_factor);
   cv::merge(channels_img, 3, cv_img);
   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
 
