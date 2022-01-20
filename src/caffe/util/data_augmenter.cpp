@@ -88,11 +88,11 @@ void DataAugmenter<Dtype>::Transform(cv::Mat& cv_img) {
     Rotate(cv_img, param_.rotation()); 
   }
 
-  if (m_save_dir.length() > 2) {
-    char im_path[256];
-    sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
-    cv::imwrite( im_path, cv_img);
-  }
+//   if (m_save_dir.length() > 2) {
+//     char im_path[256];
+//     sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
+//     cv::imwrite( im_path, cv_img);
+//   }
 }
 
 
@@ -130,7 +130,19 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
 
   cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::addWeighted(cv_img, rand_factor, zero_img, 1.0 - rand_factor, 0.0, cv_img);
+  if (m_save_dir.length() > 2) {
+    char im_path[256];
+    sprintf(im_path, "%s/%d_sub.jpg", m_save_dir.c_str(), m_img_index);
+    cv::imwrite(im_path, cv_img);
+  }
+
   cv::inRange(cv_img, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255), cv_img);
+  if (m_save_dir.length() > 2) {
+    char im_path[256];
+    sprintf(im_path, "%s/%d_aug.jpg", m_save_dir.c_str(), m_img_index);
+    cv::imwrite(im_path, cv_img);
+  }
+
 
   if (m_show_info) {
     LOG(INFO) << "* Alpha for Brightness : " << rand_factor;
