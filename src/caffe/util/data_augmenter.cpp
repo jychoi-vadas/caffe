@@ -152,7 +152,6 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
 template <typename Dtype>
 void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   double rand_factor = ((double)(50.0 + Rand(100))) / 100.0;
-  double rand_factor = ((double)(Rand(50))) / 100.0;
 
   cv::Mat gray_img;
   cv::cvtColor(cv_img, gray_img, CV_BGR2GRAY);
