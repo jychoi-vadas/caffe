@@ -111,11 +111,11 @@ void DataAugmenter<Dtype>::Blur(cv::Mat& cv_img) {
 template <typename Dtype>
 void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
   int rand_ch = Rand(3);
-  double rand_factor = ((double)(Rand(30))) / 100.0;
+  double rand_factor = ((double)(50.0 + Rand(100))) / 100.0;
 
   cv::Mat channels_img[3];
   cv::split(cv_img, channels_img);
-  channels_img[rand_ch] = channels_img[rand_ch] * (1.0 + rand_factor);
+  channels_img[rand_ch] = channels_img[rand_ch] * rand_factor;
   cv::merge(channels_img, 3, cv_img);
 
   cv::threshold(cv_img, cv_img, 255, 255, 2);
@@ -128,7 +128,7 @@ void DataAugmenter<Dtype>::Color(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
-  double rand_factor = ((double)(50.0 + Rand(100))) / 100.0;
+  double rand_factor = ((double)(75.0 + Rand(50))) / 100.0;
 
   cv::Mat zero_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
   cv::addWeighted(cv_img, rand_factor, zero_img, 1.0 - rand_factor, 0.0, cv_img);
@@ -143,7 +143,7 @@ void DataAugmenter<Dtype>::Brightness(cv::Mat& cv_img) {
 
 template <typename Dtype>
 void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
-  double rand_factor = ((double)(50.0 + Rand(100))) / 100.0;
+  double rand_factor = ((double)(75.0 + Rand(50))) / 100.0;
 
   cv::Mat gray_img;
   cv::cvtColor(cv_img, gray_img, CV_BGR2GRAY);
@@ -157,7 +157,7 @@ void DataAugmenter<Dtype>::Contrast(cv::Mat& cv_img) {
   cv::threshold(cv_img, cv_img, 0, 255, 3);
 
   if (m_show_info) {
-    LOG(INFO) << "* Alpha for Contrast: " << rand_factor << " " << cv_img.at<cv::Vec3b>(0, 0)[0] << " " << cv_img.at<cv::Vec3b>(100, 100)[0];
+    LOG(INFO) << "* Alpha for Contrast: " << rand_factor;
   }
 }
 
@@ -170,30 +170,11 @@ void DataAugmenter<Dtype>::Hue(cv::Mat& cv_img, const float factor) {
   }
 }
 
-
 template <typename Dtype>
 void DataAugmenter<Dtype>::Saturate(cv::Mat& cv_img, const float factor) {
 
   if (m_show_info) {
     LOG(INFO) << "* Apply Saturation: " << factor;
-  }
-}
-
-template <typename Dtype>
-void DataAugmenter<Dtype>::Rotate(cv::Mat& cv_img, const int degree) {
-  double sign = (Rand(2) % 2 ? 1.0 : -1.0);
-  double sign_degree = sign * (double)degree;
-
-  cv::Mat rotated_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
-  cv::Point2f center(cv_img.cols / 2., cv_img.rows / 2.);    
-
-  cv::Mat rotate_matrix = getRotationMatrix2D(center, sign_degree, 1.0);
-  cv::warpAffine(cv_img, rotated_img, rotate_matrix, cv::Size(cv_img.cols, cv_img.rows));
-
-  rotated_img.copyTo(cv_img);
-
-  if (m_show_info) {
-    LOG(INFO) << "* Degree for Rotation : " << sign_degree;
   }
 }
 
@@ -244,6 +225,24 @@ void DataAugmenter<Dtype>::Zoom(cv::Mat& cv_img, const int pixel) {
 
   if (m_show_info) {
     LOG(INFO) << "* Pixel for Zoom : " << pixel;
+  }
+}
+
+template <typename Dtype>
+void DataAugmenter<Dtype>::Rotate(cv::Mat& cv_img, const int degree) {
+  double sign = (Rand(2) % 2 ? 1.0 : -1.0);
+  double sign_degree = sign * (double)degree;
+
+  cv::Mat rotated_img = cv::Mat::zeros(cv_img.cols, cv_img.rows, cv_img.type());
+  cv::Point2f center(cv_img.cols / 2., cv_img.rows / 2.);    
+
+  cv::Mat rotate_matrix = getRotationMatrix2D(center, sign_degree, 1.0);
+  cv::warpAffine(cv_img, rotated_img, rotate_matrix, cv::Size(cv_img.cols, cv_img.rows));
+
+  rotated_img.copyTo(cv_img);
+
+  if (m_show_info) {
+    LOG(INFO) << "* Degree for Rotation : " << sign_degree;
   }
 }
 
